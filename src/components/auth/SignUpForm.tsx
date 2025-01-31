@@ -1,6 +1,10 @@
 "use client";
 
-import { ChangeEvent } from "react";
+import {
+  ChangeEvent,
+  useActionState,
+  useEffect,
+} from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import FormCard from "./FormCard";
@@ -8,26 +12,42 @@ import Submit from "./Submit";
 import { useFormValidate } from "@/hooks/useFormValidate";
 import { SignUpSchema } from "@/schemas/auth";
 import { FormMessage } from "./FormMessage";
-import { useFormState } from "react-dom";
+import { signUp } from "@/actions/signup";
+import toast from "react-hot-toast";
 
 export default function SignUpForm() {
-  const [error, action] = useFormState(SignUpForm, undefined);
+  const [state, formAction, isPending] = useActionState(
+    signUp,
+    undefined,
+  );
   const { errors, validateField } =
     useFormValidate<TSignupFormErrors>(SignUpSchema);
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
     const { name, value } = event.target;
     validateField(name, value);
   };
 
-  console.log(errors);
+  useEffect(() => {
+    if (state?.errorMessage) {
+      toast.error(state?.errorMessage);
+    }
+  }, [state]);
 
   return (
     <FormCard
       title="회원가입"
-      footer={{ label: "이미 계정이 있으신가요?", href: "/" }}
+      footer={{
+        label: "이미 계정이 있으신가요?",
+        href: "/",
+      }}
     >
-      <form action={action} className="w-full flex flex-col space-y-6">
+      <form
+        action={formAction}
+        className="w-full flex flex-col space-y-6"
+      >
         <div className="w-full space-y-1">
           <Label htmlFor="name">이름</Label>
           <Input
@@ -38,7 +58,9 @@ export default function SignUpForm() {
             onChange={handleChange}
             error={!!errors?.name}
           />
-          {errors?.name && <FormMessage message={errors?.name[0]} />}
+          {errors?.name && (
+            <FormMessage message={errors?.name[0]} />
+          )}
         </div>
         <div className="w-full space-y-1">
           <Label htmlFor="email">이메일</Label>
@@ -50,7 +72,9 @@ export default function SignUpForm() {
             onChange={handleChange}
             error={!!errors?.email}
           />
-          {errors?.email && <FormMessage message={errors?.email[0]} />}
+          {errors?.email && (
+            <FormMessage message={errors?.email[0]} />
+          )}
         </div>
         <div className="w-full space-y-1">
           <Label htmlFor="password">비밀번호</Label>
@@ -62,7 +86,9 @@ export default function SignUpForm() {
             onChange={handleChange}
             error={!!errors?.password}
           />
-          {errors?.password && <FormMessage message={errors?.password[0]} />}
+          {errors?.password && (
+            <FormMessage message={errors?.password[0]} />
+          )}
         </div>
         <Submit>회원가입</Submit>
       </form>
