@@ -1,3 +1,4 @@
+import { useFormStatus } from "react-dom";
 import { Button } from "../ui/button";
 
 export default function Submit({
@@ -6,8 +7,9 @@ export default function Submit({
 }: {
   children: React.ReactNode;
 }) {
+  const { pending } = useFormStatus();
   return (
-    <Button type="submit" {...others}>
+    <Button type="submit" disabled={pending} {...others}>
       {children}
     </Button>
   );
